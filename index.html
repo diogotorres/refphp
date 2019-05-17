@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<header>
+    <title>Consulta CEP</title>
+    <meta charset="utf8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</header>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-6">
+                <h1>Consulta de cep</h1>
+                <form method="post" action="salvar-info.php" onkeydown="return event.key != 'Enter';">
+
+                    <!-- Campo do cep -->
+                    <div class="form-group col-6">
+                        <label for="txtCep">Informe o cep desejado</label>
+                        <div class="row">
+                            <div class="col-9">
+                                <input type="number" class="form-control" id="txtCep" name="txtCep" placeholder="CEP" required>
+                            </div>
+                            <div class="col-3">
+                                <button type="button" id="btnCep" class="btn btn-outline-secondary">Buscar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Demais campos -->
+                    <div class="form-group col">
+                        <label for="txtLogradouro">Logradouro</label>
+                        <input type="text" class="form-control" id="txtLogradouro" name="txtLogradouro" required>
+                    </div>
+                    <div class="form-group col">
+                        <div class="row">
+                            <div class="col-5">
+                                <label for="txtBairro">Bairro</label>
+                                <input type="text" class="form-control" id="txtBairro" name="txtBairro">
+                            </div>
+                            <div class="col-5">
+                                <label for="txtCidade">Cidade</label>
+                                <input type="text" class="form-control" id="txtCidade" name="txtCidade" required>
+                            </div>
+                            <div class="col-2">
+                                <label for="txtEstado">Estado</label>
+                                <input type="text" class="form-control" id="txtEstado" name="txtEstado" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <button type="submit" class="btn btn-outline-secondary">Salvar normal</button>
+                        <button type="button" id="btnSalvarAjax" class="btn btn-outline-secondary">Salvar via ajax</button>
+                    </div>
+                </form>
+                <br>
+                <a href="lista-enderecos-ajax.html" class="ml-3">Lista endereços Ajax</a>
+                <a href="lista-enderecos-php.php" class="ml-3">Lista endereços PHP</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+
+<script>
+
+    //exemplo get com JQuery
+    $('#btnCep').on('click', () => {
+        var cep = $('#txtCep').val()
+        if(!cep){
+            alert("Informe um cep")
+            return
+        }
+        var url = `https://viacep.com.br/ws/${cep}/json/`
+        $('#txtLogradouro').val('Carregando...')
+        $.getJSON(url, (res) => {
+            if(res.erro){
+                clearFields()
+                $('#txtLogradouro').val('CEP não encontrado')
+            } else {
+                $('#txtLogradouro').val(res.logradouro)
+                $('#txtBairro').val(res.bairro)
+                $('#txtCidade').val(res.localidade)
+                $('#txtEstado').val(res.uf)
+            }
+        }).fail((jqXHR, textStatus, errorThrown) => {
+            clearFields()
+            $('#txtLogradouro').val('CEP inválido')
+        })  
+    })
+
+    //exemplo de post com JQuery
+    $('#btnSalvarAjax').on('click', () => {
+        $.post('salvar-info.php', {
+            txtCep: $('#txtCep').val(), 
+            txtLogradouro: $('#txtLogradouro').val(), 
+            txtBairro: $('#txtBairro').val(), 
+            txtCidade: $('#txtCidade').val(), 
+            txtEstado: $('#txtEstado').val()
+        }, (msg) => {
+            alert(msg)
+        })
+    })
+
+    //limpa os campos do formulario
+    function clearFields(){
+        $('#txtLogradouro').val('')
+        $('#txtBairro').val('')
+        $('#txtCidade').val('')
+        $('#txtEstado').val('')
+    }
+
+</script>
+
+</html>
